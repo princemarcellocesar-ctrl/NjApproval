@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Fraunces", Georgia, serif;
+}
+
+:root {
+  font-family: var(--font-sans);
+  color: #1f2937;
+  background: #f9f8f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
