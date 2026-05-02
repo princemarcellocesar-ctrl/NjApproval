@@ -1,4 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const pdfParse = require("pdf-parse");
 import {
   commonRoadmap,
   newarkPromptInjection,
@@ -7,9 +13,37 @@ import {
   requiredForms,
 } from "./data/knowledgeBase.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const ROOT_DIR = path.resolve(__dirname, "../../");
+
 const anthropic = process.env.ANTHROPIC_API_KEY
   ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   : null;
+
+// Load and cache PDF knowledge on startup
+let cachedPdfKnowledge = null;
+
+async function loadPdfKnowledge() {
+  if (cachedPdfKnowledge) return cachedPdfKnowledge;
+
+  const pdfFiles = fs.readdirSync(ROOT_DIR).filter((f) => f.endsWith(".pdf"));
+  let combined = "";
+
+  for (const file of pdfFiles) {
+    try {
+      const buffer = fs.readFileSync(path.join(ROOT_DIR, file));
+      const data = await pdfParse(buffer);
+      const snippet = data.text.slice(0, 2000);
+      combined += `\n\n--- ${file} ---\n${snippet}`;
+    } catch {
+      // skip unreadable PDFs
+    }
+  }
+
+  cachedPdfKnowledge = combined.slice(0, 15000);
+  return cachedPdfKnowledge;
+}
 
 const systemPrompt = `
 You are ApprovalNJ.ai, an institutional-grade New Jersey permit intelligence engine for commercial real estate developers, architects, and contractors.
@@ -205,6 +239,9 @@ export async function analyzeProject(projectDetails) {
     return buildFallbackAnalysis(projectDetails);
   }
 
+  // Load PDF knowledge
+  const pdfKnowledge = await loadPdfKnowledge();
+
   const userPrompt = `
 Project intake:
 ${JSON.stringify(projectDetails, null, 2)}
@@ -215,10 +252,13 @@ Structured defaults to preserve unless better analysis requires refinement:
 - Default roadmap: ${JSON.stringify(commonRoadmap)}
 
 ${isNewark ? newarkPromptInjection : ""}
+
+Reference knowledge extracted from NJ regulatory documents:
+${pdfKnowledge}
 `;
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 1800,
     system: systemPrompt,
     messages: [{ role: "user", content: userPrompt }],
