@@ -8,6 +8,7 @@
     "dev": "concurrently \"node .tooling/package/bin/npm-cli.js run dev:server\" \"node .tooling/package/bin/npm-cli.js run dev:client\"",
     "dev:server": "nodemon server/index.js",
     "dev:client": "vite",
+    "dev:fresh": "vite --force",
     "build": "vite build",
     "preview": "vite preview",
     "start": "node server/index.js"

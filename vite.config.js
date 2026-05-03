@@ -9,5 +9,11 @@ export default defineConfig({
     proxy: {
       "/api": "http://localhost:3001",
     },
+    watch: {
+      ignored: ["**/node_modules/**", "**/server/**", "**/dist/**"],
+    },
+  },
+  optimizeDeps: {
+    entries: ["./client/src/main.jsx"],
   },
 });

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"node server/index.js\")",
+      "Bash(pkill -f \"nodemon\")",
+      "Bash(node server/index.js)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(curl -s -X POST http://localhost:3001/api/analyze -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s -X POST http://localhost:3001/api/analyze -H 'Content-Type: application/json' -d '{\"projectType\":\"Restaurant / Hospitality\",\"municipality\":\"Newark\",\"zoningDistrict\":\"CBD\",\"squareFootage\":4000,\"constructionCost\":2000000,\"wetlandsProximity\":false,\"highlandsRegion\":\"none\",\"additionalDetails\":\"Full gut renovation\"}')",
+      "Read(//private/tmp/**)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node --input-type=module)",
+      "Bash(lsof -i :3001)",
+      "Bash(kill 45609)",
+      "Bash(git add *)"
+    ]
+  }
+}
