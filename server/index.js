@@ -22,6 +22,9 @@ app.post("/api/analyze", async (req, res) => {
     constructionCost,
     wetlandsProximity,
     highlandsRegion,
+    occupancyGroup,
+    numberOfStories,
+    buildingStatus,
     additionalDetails,
   } = req.body ?? {};
 
@@ -41,6 +44,9 @@ app.post("/api/analyze", async (req, res) => {
       constructionCost: Number(constructionCost || 0),
       wetlandsProximity: Boolean(wetlandsProximity),
       highlandsRegion: highlandsRegion || "none",
+      occupancyGroup: occupancyGroup || "",
+      numberOfStories: Number(numberOfStories || 0),
+      buildingStatus: buildingStatus || "",
       additionalDetails: additionalDetails || "",
     });
 

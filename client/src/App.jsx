@@ -36,6 +36,30 @@ const highlandsOptions = [
   { value: "planning", label: "Highlands Planning Area" },
 ];
 
+const occupancyGroups = [
+  "A-1 Assembly Large",
+  "A-2 Assembly Food/Drink",
+  "A-3 Assembly Other",
+  "B Business/Office",
+  "E Educational",
+  "F-1 Factory Moderate",
+  "F-2 Factory Low",
+  "M Mercantile/Retail",
+  "R-1 Residential Transient",
+  "R-2 Residential Multifamily",
+  "S-1 Storage Moderate",
+  "S-2 Storage Low",
+  "I Institutional",
+  "H Hazardous",
+  "U Utility",
+];
+
+const buildingStatusOptions = [
+  "Existing Building",
+  "New Construction",
+  "Shell Building",
+];
+
 const statusTone = {
   green: "bg-emerald-500/12 text-emerald-900 ring-1 ring-emerald-700/20",
   yellow: "bg-amber-500/12 text-amber-900 ring-1 ring-amber-700/20",
@@ -56,6 +80,9 @@ const initialForm = {
   constructionCost: "",
   wetlandsProximity: false,
   highlandsRegion: "none",
+  occupancyGroup: "",
+  numberOfStories: "",
+  buildingStatus: "",
   additionalDetails: "",
 };
 
@@ -228,6 +255,40 @@ function App() {
                       </option>
                     ))}
                   </select>
+                </Field>
+
+                <Field label="Occupancy Group">
+                  <select
+                    value={formData.occupancyGroup}
+                    onChange={(e) => updateField("occupancyGroup", e.target.value)}
+                  >
+                    <option value="">— Select occupancy —</option>
+                    {occupancyGroups.map((option) => (
+                      <option key={option}>{option}</option>
+                    ))}
+                  </select>
+                </Field>
+
+                <Field label="Building Status">
+                  <select
+                    value={formData.buildingStatus}
+                    onChange={(e) => updateField("buildingStatus", e.target.value)}
+                  >
+                    <option value="">— Select status —</option>
+                    {buildingStatusOptions.map((option) => (
+                      <option key={option}>{option}</option>
+                    ))}
+                  </select>
+                </Field>
+
+                <Field label="Number of Stories">
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="e.g. 4"
+                    value={formData.numberOfStories}
+                    onChange={(e) => updateField("numberOfStories", e.target.value)}
+                  />
                 </Field>
               </div>
 

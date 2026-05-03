@@ -80,28 +80,42 @@ function calculateCost(projectDetails) {
 function calculateRisk(projectDetails) {
   const pt = (projectDetails.projectType || "").toLowerCase();
   const mun = (projectDetails.municipality || "").toLowerCase();
+  const occ = (projectDetails.occupancyGroup || "").toLowerCase();
+  const stories = Number(projectDetails.numberOfStories || 0);
   const isRestaurant = /restaurant|hospitality/.test(pt);
   const isNewConstruction = /new construction|ground.up/.test(pt);
   const isChangeOfUse = /change of use/.test(pt);
   const isNewark = mun === "newark";
+  const isHazardous = /^h /.test(occ);
+  const isNewBuildingStatus = /^new construction/.test((projectDetails.buildingStatus || "").toLowerCase());
 
   // Hard minimums — these always win regardless of other factors
-  if (isNewConstruction) return "High";
+  if (isHazardous) return "High";
+  if (isNewConstruction || isNewBuildingStatus) return "High";
   if (projectDetails.wetlandsProximity) return "High";
   if (projectDetails.highlandsRegion === "preservation") return "High";
 
   let score = 1;
-  if (isRestaurant) score += 2;  // guarantees Medium minimum (1+2=3)
-  if (isChangeOfUse) score += 2; // guarantees Medium minimum (1+2=3)
+  if (isRestaurant) score += 2;
+  if (isChangeOfUse) score += 2;
+  if (/^i /.test(occ)) score += 2;   // Institutional — complex inspections and agency coordination
+  if (/^a-1/.test(occ)) score += 1;  // Assembly Large — life safety triggers
   if (isNewark) score += 1;
   if (projectDetails.highlandsRegion === "planning") score += 1;
+  if (stories >= 7) score += 1;      // High-rise threshold triggers additional code requirements
   return score >= 5 ? "High" : score >= 3 ? "Medium" : "Low";
 }
 
 function calculateTimeline(riskLevel, projectDetails) {
   const pt = (projectDetails?.projectType || "").toLowerCase();
-  if (/new construction|ground.up/.test(pt)) return "9-18 months";
-  if (/mixed.use/.test(pt)) return "12-24 months";
+  const stories = Number(projectDetails?.numberOfStories || 0);
+  const isNewBuildingStatus = /^new construction/.test((projectDetails?.buildingStatus || "").toLowerCase());
+  const isHighRise = stories >= 7;
+
+  if (/new construction|ground.up/.test(pt) || isNewBuildingStatus) {
+    return isHighRise ? "18-36 months" : "9-18 months";
+  }
+  if (/mixed.use/.test(pt)) return isHighRise ? "24-48 months" : "12-24 months";
   if (/restaurant|hospitality/.test(pt)) return "3-6 months";
   if (/change of use/.test(pt)) return "2-4 months";
   if (riskLevel === "High") return "6-12+ months";
