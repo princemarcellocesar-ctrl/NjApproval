@@ -1,9 +1,7 @@
+import "./loadEnv.js";
 import cors from "cors";
-import dotenv from "dotenv";
 import express from "express";
 import { analyzeProject } from "./src/analyze.js";
-
-dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT) || 3001;
