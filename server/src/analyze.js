@@ -82,9 +82,11 @@ function calculateRisk(projectDetails) {
   const mun = (projectDetails.municipality || "").toLowerCase();
   const occ = (projectDetails.occupancyGroup || "").toLowerCase();
   const stories = Number(projectDetails.numberOfStories || 0);
+  const units = Number(projectDetails.numberOfUnits || 0);
   const isRestaurant = /restaurant|hospitality/.test(pt);
   const isNewConstruction = /new construction|ground.up/.test(pt);
   const isChangeOfUse = /change of use/.test(pt);
+  const isMultifamily = /multifamily/.test(pt);
   const isNewark = mun === "newark";
   const isHazardous = /^h /.test(occ);
   const isNewBuildingStatus = /^new construction/.test((projectDetails.buildingStatus || "").toLowerCase());
@@ -92,12 +94,15 @@ function calculateRisk(projectDetails) {
   // Hard minimums — these always win regardless of other factors
   if (isHazardous) return "High";
   if (isNewConstruction || isNewBuildingStatus) return "High";
+  if (units >= 50) return "High";
   if (projectDetails.wetlandsProximity) return "High";
   if (projectDetails.highlandsRegion === "preservation") return "High";
 
   let score = 1;
   if (isRestaurant) score += 2;
   if (isChangeOfUse) score += 2;
+  if (isMultifamily) score += 2; // guarantees Medium minimum; DCA/RSIS/fire subcode complexity
+  if (units >= 10) score += 1;   // 10+ units adds DCA review burden and fire subcode triggers
   if (/^i /.test(occ)) score += 2;   // Institutional — complex inspections and agency coordination
   if (/^a-1/.test(occ)) score += 1;  // Assembly Large — life safety triggers
   if (isNewark) score += 1;
@@ -116,6 +121,10 @@ function calculateTimeline(riskLevel, projectDetails) {
     return isHighRise ? "18-36 months" : "9-18 months";
   }
   if (/mixed.use/.test(pt)) return isHighRise ? "24-48 months" : "12-24 months";
+  if (/multifamily/.test(pt)) {
+    const mun = (projectDetails?.municipality || "").toLowerCase();
+    return mun === "newark" ? "6-12 months" : "4-9 months";
+  }
   if (/restaurant|hospitality/.test(pt)) return "3-6 months";
   if (/change of use/.test(pt)) return "2-4 months";
   if (riskLevel === "High") return "6-12+ months";
@@ -234,10 +243,11 @@ export async function analyzeProject(projectDetails) {
   try {
     const pdfKnowledge = await loadPdfKnowledge();
 
+    const units = Number(projectDetails.numberOfUnits || 0);
     const userPrompt = `
 Project intake:
 ${JSON.stringify(projectDetails, null, 2)}
-
+${units > 0 ? `\nUnit count context: This project has ${units} residential units. ${units >= 50 ? "At 50+ units, expect full DCA review, fire subcode scrutiny, RSIS parking compliance, and potential affordable housing set-aside triggers." : units >= 10 ? "At 10+ units, DCA review burden increases and fire subcode requirements intensify." : "Under 10 units, unit count does not independently escalate risk."}` : ""}
 Required forms baseline: ${JSON.stringify(buildRequiredForms(projectDetails))}
 Prior approvals baseline: ${JSON.stringify(buildPriorApprovals(projectDetails))}
 Default roadmap: ${JSON.stringify(commonRoadmap)}

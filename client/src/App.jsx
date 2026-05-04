@@ -27,6 +27,7 @@ const projectTypes = [
   "Restaurant / Hospitality",
   "Office Renovation",
   "Mixed-Use Development",
+  "Multifamily Residential",
   "Façade / Envelope Work",
 ];
 
@@ -82,6 +83,7 @@ const initialForm = {
   highlandsRegion: "none",
   occupancyGroup: "",
   numberOfStories: "",
+  numberOfUnits: "",
   buildingStatus: "",
   additionalDetails: "",
 };
@@ -288,6 +290,16 @@ function App() {
                     placeholder="e.g. 4"
                     value={formData.numberOfStories}
                     onChange={(e) => updateField("numberOfStories", e.target.value)}
+                  />
+                </Field>
+
+                <Field label="Number of Units">
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="e.g. 24"
+                    value={formData.numberOfUnits}
+                    onChange={(e) => updateField("numberOfUnits", e.target.value)}
                   />
                 </Field>
               </div>

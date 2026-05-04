@@ -24,6 +24,7 @@ app.post("/api/analyze", async (req, res) => {
     highlandsRegion,
     occupancyGroup,
     numberOfStories,
+    numberOfUnits,
     buildingStatus,
     additionalDetails,
   } = req.body ?? {};
@@ -46,6 +47,7 @@ app.post("/api/analyze", async (req, res) => {
       highlandsRegion: highlandsRegion || "none",
       occupancyGroup: occupancyGroup || "",
       numberOfStories: Number(numberOfStories || 0),
+      numberOfUnits: Number(numberOfUnits || 0),
       buildingStatus: buildingStatus || "",
       additionalDetails: additionalDetails || "",
     });
